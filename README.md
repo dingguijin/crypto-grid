@@ -136,6 +136,11 @@ grid-dgj-grid::grid-dgj-grid-00
 
 ```
 
+### 交易效果
+
+登录 FTX 账号，检查相应的合约，就能看到挂单数据。
+![当前价格上面挂卖单，下面挂买单](/images/ftx.png)
+
 ## 启动交易数据存储分析
 
 ### 了解 Odoo
@@ -158,6 +163,11 @@ grid-dgj-grid::grid-dgj-grid-00
 ```
 ../../odoo/odoo.bin -c odoo.config
 ```
+
+### 交易数据
+
+数据通过 Odoo 的数据库存储，可以很容易进行分析。
+![交易详情数据](/images/odoo.png)
 
 ## 讨论组
 

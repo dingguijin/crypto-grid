@@ -184,4 +184,4 @@ ERC20 [DDING.ETH](0x211164B771F7910445E96914E7a4D66a406458d2)
 
 ## FTX 注册
 
-[使用FTX邀请链接节省交易费](https://ftx.com/referrals#a=22848838)
+[使用FTX邀请链接注册节省交易费](https://ftx.com/referrals#a=22848838)

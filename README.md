@@ -1,7 +1,7 @@
 # crypto-grid / 加密货币网格自动交易
 Crypto grid trade strategy and logging all trades in Odoo system
 
-> 风险提示，加密货币货币交易是一个高风险领域，网格策略对于单边行情会有长时间的浮亏。本程序只是个人兴趣进行学习和研究，不构成任何投资建议。
+> 风险提示，加密货币交易是一个高风险领域，网格策略对于单边行情会有长时间的浮亏。本程序只是个人兴趣进行学习和研究，不构成任何投资建议。
 
 
 本系统分成两部分，第一部分是程序化交易部分，另一部分是交易数据存储分析部分。
@@ -128,9 +128,9 @@ grid-dgj-grid::grid-dgj-grid-00
 
 ## 启动交易数据存储分析
 
-### 准备 Odoo
+### 了解 Odoo
 
-这需要去 [Odoo](https://odoo.com) 深入了解，或者直接到 Odoo 的开源项目 [Odoo Source](https://github.com/odoo/odoo) 下载安装。
+参见 [Odoo](https://odoo.com)。
 
 ### 下载代码
 

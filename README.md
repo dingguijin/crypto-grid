@@ -135,6 +135,7 @@ grid-dgj-grid::grid-dgj-grid-00
 ### 下载代码
 
 ```
+    git clone https://github.com/odoo/odoo.git
     git clone https://github.com/dingguijin/crypto-grid.git
     cd crypto-grid/analyse
     pip install -r requirments.txt
@@ -145,5 +146,5 @@ grid-dgj-grid::grid-dgj-grid-00
 ### 启动/停止/运行日志
 
 ```
-sh start-odoo.sh
+../../odoo/odoo.bin -c odoo.config
 ```

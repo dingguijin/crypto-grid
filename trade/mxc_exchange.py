@@ -31,7 +31,7 @@ class MxcTradeType(Enum):
     MARKET = "IMMEDIATE_OR_CANCEL"
     LIMIT = "LIMIT_ORDER"
 
-class MxcGridExchange():
+class MxcExchange():
 
     def __init__(self, market=MxcMarket.APN.value, size=0.001):
         self.market = market

@@ -3,8 +3,6 @@ import datetime
 import logging
 import requests
 
-import numpy as np
-
 from trade_side import TradeSide
 from trade_type import TradeType
 

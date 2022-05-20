@@ -32,7 +32,7 @@ Crypto grid trade strategy and logging all trades in Odoo system
 ```
     git clone https://github.com/dingguijin/crypto-grid.git
     cd crypto-grid/trade
-    pip install -r requirments.txt
+    pip install -r requirements.txt
 ```
 
 ### 配置参数
@@ -95,6 +95,16 @@ strategy_id 是指交易数据存储分析系统的 ID，如果不使用交易�
 如果暂时不想使用 Supervisor 管理程序运行，那么直接在 console 下执行 command 的命令行即可。
 
 ### 启动/停止/运行日志
+
+** 快速启动 **
+确保在 trade 目录下。
+
+```
+python ./grid.py --exchange ftx --market ETH-PERP --step_ratio 0.001 --size 0.001 --strategy_id -1
+```
+这个命令会启动网格，在 FTX 交易所进行 ETH 永续合约的网格，网格的间隔为价格的千分之一，每次买卖的大小是 0.001 个ETH。
+
+
 启动 Supervisor
 
 ```
@@ -138,7 +148,7 @@ grid-dgj-grid::grid-dgj-grid-00
     git clone https://github.com/odoo/odoo.git
     git clone https://github.com/dingguijin/crypto-grid.git
     cd crypto-grid/analyse
-    pip install -r requirments.txt
+    pip install -r requirements.txt
 
 ```
 

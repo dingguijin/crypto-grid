@@ -220,6 +220,10 @@ class GridStrategy():
         return
 
     def update_odoo_pnl(self):
+        if self.strategy_id == -1:
+            # ignore trade record
+            return
+
         if self.update_odoo_pnl_sleep < 36.0:
             return
         self.update_odoo_pnl_sleep = 0.0

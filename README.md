@@ -148,3 +148,15 @@ grid-dgj-grid::grid-dgj-grid-00
 ```
 ../../odoo/odoo.bin -c odoo.config
 ```
+
+## 讨论组
+
+[DISCORD](https://discord.gg/7vcnEDAa)
+
+[TWITTER](https://twitter.com/dingguijin)
+
+## 赞助
+
+ERC20 [DDING.ETH](0x211164B771F7910445E96914E7a4D66a406458d2) 
+
+0x211164B771F7910445E96914E7a4D66a406458d2

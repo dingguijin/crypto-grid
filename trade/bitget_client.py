@@ -1,4 +1,5 @@
 import os
+import json
 import time
 import urllib.parse
 from typing import Optional, Dict, Any, List
@@ -74,9 +75,10 @@ class BitgetClient:
             response.raise_for_status()
             raise
         else:
-            if not data['success']:
-                raise Exception(data['error'])
-            return data['result']
+            print(json.dumps(data, indent=2))
+            if data['msg'] != 'success':
+                raise Exception(data)
+            return data['data']
 
     def list_futures(self) -> List[dict]:
         return self._get('futures')
@@ -110,6 +112,10 @@ class BitgetClient:
 
     def get_open_orders(self, market: str = None) -> List[dict]:
         return self._get(f'orders', {'market': market})
+
+    def get_unfilled_orders(self, symbol: str = None) -> List[dict]:
+        return self._get(f'api/v2/spot/trade/unfilled-orders', {'symbol': symbol})
+
 
     def get_open_trigger_orders(self, market: str = None) -> List[dict]:
         return self._get(f'conditional_orders', {'market': market})
@@ -176,15 +182,8 @@ class BitgetClient:
                            'size': size, 'reduceOnly': reduce_only, 'type': 'stop',
                            'cancelLimitOnTrigger': cancel, 'orderPrice': limit_price})
 
-    def cancel_order(self, order_id: str) -> dict:
-        return self._delete(f'orders/{order_id}')
-
-    def cancel_orders(self, market_name: str = None, conditional_orders: bool = False,
-                      limit_orders: bool = False) -> dict:
-        return self._delete(f'orders', {'market': market_name,
-                                        'conditionalOrdersOnly': conditional_orders,
-                                        'limitOrdersOnly': limit_orders,
-                                        })
+    def cancel_order(self, symbol: str, order_id: str) -> dict:
+        return self._post(f'api/v2/spot/trade/cancel-order', {'order_id': order_id, 'symbol': symbol})
 
     def get_historial_prices(self, market: str, interval: int, start_time: float, end_time: float) -> List[dict]:
         # GET /markets/{market_name}/candles?resolution={resolution}&start_time={start_time}&end_time={end_time}

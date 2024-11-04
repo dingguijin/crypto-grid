@@ -177,4 +177,11 @@ if __name__ == "__main__":
     
     exchange = BitgetExchange(account_name="DGJ-01")
     pprint.pprint(exchange.client.get_account_info())
-    pprint.pprint(exchange.get_open_positions())
+    _orders = exchange.client.get_unfilled_orders()
+    pprint.pprint(_orders)
+    if _orders:
+        for _order in _orders:
+            print(_order)
+            _order_id = _order["orderId"]
+            exchange.client.cancel_order(symbol=_order["symbol"], order_id=_order_id)
+

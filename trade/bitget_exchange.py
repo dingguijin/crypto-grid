@@ -185,3 +185,10 @@ if __name__ == "__main__":
             _order_id = _order["orderId"]
             exchange.client.cancel_order(symbol=_order["symbol"], order_id=_order_id)
 
+    _symbol = exchange.client.get_symbol("BTCUSDT")
+    pprint.pprint(_symbol)
+
+    _symbol = exchange.client.get_ticker("BTCUSDT")
+    pprint.pprint(_symbol)
+    _symbol = exchange.client.get_ticker("PUFFERUSDT")
+    pprint.pprint(_symbol)

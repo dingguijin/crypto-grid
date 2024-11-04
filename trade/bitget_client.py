@@ -53,7 +53,7 @@ class BitgetClient:
 
         query_string = urllib.parse.urlparse(prepared.url).query
         if query_string:
-            signature_payload += "?" + query_string
+            signature_payload += b"?" + query_string.encode()
             
         if prepared.body:
             signature_payload += prepared.body
@@ -91,6 +91,13 @@ class BitgetClient:
 
     def get_future(self, future: str) -> dict:
         return self._get(f'futures/{future}')
+
+    def get_symbol(self, symbol: str) -> dict:
+        return self._get(f'api/v2/spot/public/symbols', {'symbol': symbol})
+
+    def get_ticker(self, symbol: str) -> dict:
+        return self._get(f'api/v2/spot/market/tickers', {'symbol': symbol})
+
 
     def get_orderbook(self, market: str, depth: int = None) -> dict:
         return self._get(f'markets/{market}/orderbook', {'depth': depth})

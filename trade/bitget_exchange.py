@@ -65,8 +65,7 @@ class BitgetExchange(BaseExchange):
             price = None
         
         try:
-            order_response = self.client.place_order(symbol=market, side=side, price=price, size=size,
-                                                    order_type=order_type)
+            order_response = self.client.place_order(symbol=market, side=side, price=price, size=size, order_type=order_type)
         except Exception as e:
             logging.error("create order meet e: %s" % e)
             return None
@@ -75,20 +74,20 @@ class BitgetExchange(BaseExchange):
             logging.error("create order return None")
             return None
 
-        logging.info("place %s order: %s response id: %s" % (side, price, order_response.get("id")))
+        logging.info("place %s order: %s response id: %s" % (side, price, order_response.get("orderId")))
         return {"status": "placed",
-                "order_id": order_response.get("id"),
+                "order_id": order_response.get("orderId"),
                 "size": size,
-                "side": side.value,
+                "side": side,
                 "price": price}
     
-    def cancel_orders(self, order_ids):
+    def cancel_orders(self, market, order_ids):
         logging.info("cancel_orders order_ids: %s" % order_ids)
 
         for order_id in order_ids:
             logging.info("canceling order : %s" % order_id)
             try:
-                self.client.cancel_order(order_id)
+                self.client.cancel_order(symbol=market, order_id=order_id)
             except Exception as e:
                 logging.error("cancel %s meet e: %s" % (order_id, e))
                 continue

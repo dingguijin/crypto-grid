@@ -83,17 +83,17 @@ class GridStrategy():
     def on_fills_update(self, fills):
         return self.placed_orders
 
-    def cancel_unfilled_orders(self, cancel_ids):
+    def cancel_orders(self, cancel_ids):
         if not cancel_ids:
             return
         logging.info("cancel all unfilled orders: %s" % cancel_ids)
-        cancelled_ids = self.grid_exchange.cancel_orders(cancel_ids)
+        cancelled_ids = self.grid_exchange.cancel_orders(self.market, cancel_ids)
         return cancelled_ids
 
     def replace_grid_orders(self):
         self.sleep_seconds = 0
         
-        last_price = self.get_last_trade(self.market)
+        last_price = self.grid_exchange.get_last_trade(self.market)
         buy_price = self.get_next_buy_price(last_price)
         sell_price = self.get_next_sell_price(last_price)
 
@@ -117,19 +117,21 @@ class GridStrategy():
         if self.sleep_seconds < 5.0:
             return
         self.sleep_seconds = 0
+
+        time.sleep(0.4)
         open_orders = self.grid_exchange.get_open_orders(self.market) or []
-        prices = []
+        #prices = []
         if len(open_orders) == 2:
-            prices.append(float(open_orders[0].get("priceAvg")))
-            prices.append(float(open_orders[1].get("priceAvg")))
-            if last_price.get("bid_price") > min(prices) and last_price.get("ask_price") < max(prices):
-                logging.info("orders is right 2, keep waiting %s" % self.sleep_seconds)
-                return
+            #prices.append(float(open_orders[0].get("priceAvg")))
+            #prices.append(float(open_orders[1].get("priceAvg")))
+            logging.info("orders is right 2, keep waiting %s" % self.sleep_seconds)
+            return
 
         logging.error("open orders != 2 %s, waiting: %s" % (open_orders, self.sleep_seconds))
         if open_orders:
             cancel_ids = list(map(lambda x: x.get("order_id"), open_orders))
-            self.grid_exchange.cancel_orders(cancel_ids)
+            time.sleep(0.4)
+            self.cancel_orders(cancel_ids)
         # reinit
         self.placed_orders = []
         self.replace_grid_orders()

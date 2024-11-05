@@ -51,13 +51,11 @@ class BitgetClient:
         prepared = request.prepare()
         signature_payload = f'{ts}{prepared.method}{prepared.path_url}'.encode()
 
-        query_string = urllib.parse.urlparse(prepared.url).query
-        if query_string:
-            signature_payload += b"?" + query_string.encode()
             
         if prepared.body:
             signature_payload += prepared.body
         
+        print("Sign payload", signature_payload)
         signature = hmac.new(self._api_secret.encode(), signature_payload, 'sha256')
         signature = signature.hexdigest()
         signature = bytes.fromhex(signature)
@@ -116,9 +114,6 @@ class BitgetClient:
 
     def get_account_info(self) -> dict:
         return self._get(f'api/v2/account/all-account-balance')
-
-    def get_open_orders(self, market: str = None) -> List[dict]:
-        return self._get(f'orders', {'market': market})
 
     def get_unfilled_orders(self, symbol: str = None) -> List[dict]:
         return self._get(f'api/v2/spot/trade/unfilled-orders', {'symbol': symbol})

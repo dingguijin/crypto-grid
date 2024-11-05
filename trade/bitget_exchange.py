@@ -16,8 +16,10 @@ from bitget_client import BitgetClient
 from trade_side import TradeSide
 from trade_type import TradeType
 
+from base_exchange import BaseExchange
 
-class BitgetExchange():
+
+class BitgetExchange(BaseExchange):
 
     def __init__(self, account_name=None):
         self.account_name = account_name
@@ -50,21 +52,21 @@ class BitgetExchange():
                                                    cancel, trigger_price, trail_value)
 
     def place_market_order(self, market, size, side, price):
-        return self.place_order(market, size, side, price, FtxTradeType.MARKET)
+        return self.place_order(market, size, side, price, "market")
 
     def place_limit_order(self, market, size, side, price):
-        return self.place_order(market, size, side, price, FtxTradeType.LIMIT)
+        return self.place_order(market, size, side, price, "limit")
 
     def place_order(self, market, size, side, price, order_type):
         ioc = False
         post_only = False
         
-        if order_type.value == "market":
+        if order_type == "market":
             price = None
         
         try:
-            order_response = self.client.place_order(market, side.value, price, size,
-                                                    type=order_type.value, reduce_only=False,
+            order_response = self.client.place_order(market, side, price, size,
+                                                    type=order_type, reduce_only=False,
                                                     ioc=ioc, post_only=post_only)
         except Exception as e:
             logging.error("create order meet e: %s" % e)
@@ -188,7 +190,21 @@ if __name__ == "__main__":
     _symbol = exchange.client.get_symbol("BTCUSDT")
     pprint.pprint(_symbol)
 
+
     _symbol = exchange.client.get_ticker("BTCUSDT")
     pprint.pprint(_symbol)
-    _symbol = exchange.client.get_ticker("PUFFERUSDT")
+    _spot = "PUFFERUSDT"
+    _symbol = exchange.client.get_ticker(_spot)
     pprint.pprint(_symbol)
+    _symbol = _symbol[0]
+
+    _distance = 0.001
+    _buy_price = float(_symbol.get("bidPr")) * (1.0 - _distance)
+    _sell_price = float(_symbol.get("askPr")) * (1.0 + _distance)
+
+    _precision = exchange.get_float_precision(float(_symbol.get("bidPr")))
+    _buy_price = exchange.convert_to_precision(_buy_price, _precision)
+    _sell_price = exchange.convert_to_precision(_sell_price, _precision)
+
+    exchange.client.place_order(symbol=_spot, side="buy", orderType="limit", price=_buy_price, size=200)
+    exchange.client.place_order(symbol=_spot, side="sell", orderType="limit", price=_sell_price, size=200)

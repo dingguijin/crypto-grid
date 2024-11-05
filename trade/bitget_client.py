@@ -152,20 +152,17 @@ class BitgetClient:
     def get_conditional_orders(self, market: str = None) -> List[dict]:
         return self._get(f'conditional_orders', {'market': market})
 
-    def place_order(self, market: str, side: str, price: float, size: float, type: str = 'limit',
-                    reduce_only: bool = False, ioc: bool = False, post_only: bool = False,
-                    client_id: str = None) -> dict:
+    def place_order(self, symbol: str, side: str, price: float, size: float, orderType: str = 'limit', client_id: str = None) -> dict:
         self._latest_order_time = int(time.time())
-        return self._post('orders', {'market': market,
-                                     'side': side,
-                                     'price': price,
-                                     'size': size,
-                                     'type': type,
-                                     'reduceOnly': reduce_only,
-                                     'ioc': ioc,
-                                     'postOnly': post_only,
-                                     'clientId': client_id,
-                                     })
+        return self._post('api/v2/spot/trade/place-order', {
+            'symbol': symbol,
+            'side': side,
+            'price': str(price),
+            'size': str(size),
+            'orderType': orderType,
+            'force': "gtc",
+            'clientOid': client_id
+        })
 
     def place_conditional_order(
         self, market: str, side: str, size: float, type: str = 'stop',

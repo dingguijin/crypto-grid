@@ -10,6 +10,7 @@
 from ftx_exchange import FtxExchange
 from dydx_exchange import DydxExchange
 from mxc_exchange import MxcExchange
+from bitget_exchange import BitgetExchange
 
 import logging
 

@@ -123,7 +123,6 @@ class BitgetClient:
     def get_unfilled_orders(self, symbol: str = None) -> List[dict]:
         return self._get(f'api/v2/spot/trade/unfilled-orders', {'symbol': symbol})
 
-
     def get_open_trigger_orders(self, market: str = None) -> List[dict]:
         return self._get(f'conditional_orders', {'market': market})
 
@@ -152,14 +151,14 @@ class BitgetClient:
     def get_conditional_orders(self, market: str = None) -> List[dict]:
         return self._get(f'conditional_orders', {'market': market})
 
-    def place_order(self, symbol: str, side: str, price: float, size: float, orderType: str = 'limit', client_id: str = None) -> dict:
+    def place_order(self, symbol: str, side: str, price: float, size: float, order_type: str = 'limit', client_id: str = None) -> dict:
         self._latest_order_time = int(time.time())
         return self._post('api/v2/spot/trade/place-order', {
             'symbol': symbol,
             'side': side,
             'price': str(price),
             'size': str(size),
-            'orderType': orderType,
+            'orderType': order_type,
             'force': "gtc",
             'clientOid': client_id
         })

@@ -26,34 +26,43 @@ class GridStrategy():
         self.update_odoo_pnl_time = datetime.datetime.now()
 
         self.strategy_id = strategy_id
+        _precision = self.grid_exchange.get_float_precision(self.open_price.get("bid_price"))
+        self.precision = _precision
         return
 
     def open_initial_position(self):
-        self.place_grid_buy_order(self.open_price*(1-self.grid_gap_ratio))
-        self.place_grid_sell_order(self.open_price*(1+self.grid_gap_ratio))
+        _buy_price = self.open_price.get("bid_price")*(1.0-self.grid_gap_ratio)
+        _sell_price = self.open_price.get("ask_price")*(1.0+self.grid_gap_ratio)
+
+        _buy_price = self.grid_exchange.convert_to_precision(_buy_price, self.precision)
+        _sell_price = self.grid_exchange.convert_to_precision(_sell_price, self.precision)
+
+        self.place_grid_buy_order(_buy_price)
+        self.place_grid_sell_order(_sell_price)
         return
 
     def get_next_sell_price(self, position_price):
-        # FIXME: not round here
-        return position_price*(1+self.grid_gap_ratio)
+        _sell_price = position_price.get("ask_price")*(1.0+self.grid_gap_ratio)
+        _sell_price = self.grid_exchange.convert_to_precision(_sell_price, self.precision)
+        return _sell_price
 
     def get_next_buy_price(self, position_price):
-        # FIXME: not round here
-        return position_price*(1-self.grid_gap_ratio)
+        _buy_price = position_price.get("bid_price")*(1.0-self.grid_gap_ratio)
+        _buy_price = self.grid_exchange.convert_to_precision(_buy_price, self.precision)
+        return _buy_price
 
     def place_grid_sell_order(self, price, order_type=TradeType.LIMIT):
-        trade_side = self.grid_exchange.convert_side_for_exchange(TradeSide.SELL)
         placed_order = None
         if order_type == TradeType.LIMIT:
-            placed_order = self.grid_exchange.place_limit_order(self.market, self.size, trade_side, price)
+            placed_order = self.grid_exchange.place_limit_order(self.market, self.size, "sell", price)
         if order_type == TradeType.MARKET:
-            placed_order = self.grid_exchange.place_market_order(self.market, self.size, trade_side, price)
+            placed_order = self.grid_exchange.place_market_order(self.market, self.size, "sell", price)
         if placed_order != None:
             self.placed_orders.append(placed_order)
         return placed_order
 
     def place_grid_buy_order(self, price, order_type=TradeType.LIMIT):
-        trade_side = self.grid_exchange.convert_side_for_exchange(TradeSide.BUY)
+        trade_side = "buy"
         placed_order = None
         if order_type == TradeType.LIMIT:
             placed_order = self.grid_exchange.place_limit_order(self.market, self.size, trade_side, price)
@@ -72,30 +81,6 @@ class GridStrategy():
         return filled_orders, unfilled_orders
     
     def on_fills_update(self, fills):
-        _filled_orders, _unfilled_orders = self._find_lastest_fill_orders(fills)
-        if not _filled_orders:
-            return None
-        
-        logging.info("filled_orders %s" % _filled_orders)
-
-        cancel_ids = list(map(lambda x: x.get("order_id"), _unfilled_orders))
-        if cancel_ids:
-            self.cancel_unfilled_orders(cancel_ids)
-
-        self.create_odoo_fill(_filled_orders[0])
-        
-        # use latest order price, but not the grid price
-        # so that we can set very small step 
-        # _last_price = self.grid_exchange.get_last_price(self.market)
-        # _last_price = _last_price.get("price")
-
-        # logging.info("get last price: %s" % _last_price)
-        _last_price = _filled_orders[0].get("price")
-        # reinit placed orders
-
-        self.placed_orders = []
-        self.replace_grid_orders(_last_price)
-
         return self.placed_orders
 
     def cancel_unfilled_orders(self, cancel_ids):
@@ -105,13 +90,14 @@ class GridStrategy():
         cancelled_ids = self.grid_exchange.cancel_orders(cancel_ids)
         return cancelled_ids
 
-    def replace_grid_orders(self, latest_price):
+    def replace_grid_orders(self):
         self.sleep_seconds = 0
         
-        buy_price = self.get_next_buy_price(latest_price)
-        sell_price = self.get_next_sell_price(latest_price)
+        last_price = self.get_last_trade(self.market)
+        buy_price = self.get_next_buy_price(last_price)
+        sell_price = self.get_next_sell_price(last_price)
 
-        logging.info("get filled: %s buy: %s, sell: %s" % (latest_price, buy_price, sell_price))
+        logging.info("get filled: %s buy: %s, sell: %s" % (last_price, buy_price, sell_price))
         # FIXME: if next price overflow the pricelist, dangerous!!!
         if buy_price != None:
             self.place_grid_buy_order(buy_price)
@@ -131,19 +117,12 @@ class GridStrategy():
         if self.sleep_seconds < 5.0:
             return
         self.sleep_seconds = 0
-        
-        last_trade = self.grid_exchange.get_last_trade(self.market)
-        if not last_trade:
-            logging.error("no last trade")
-            return
-        last_price = float(last_trade.get("price"))
-        
         open_orders = self.grid_exchange.get_open_orders(self.market) or []
         prices = []
         if len(open_orders) == 2:
-            prices.append(float(open_orders[0].get("price")))
-            prices.append(float(open_orders[1].get("price")))
-            if last_price > min(prices) and last_price < max(prices):
+            prices.append(float(open_orders[0].get("priceAvg")))
+            prices.append(float(open_orders[1].get("priceAvg")))
+            if last_price.get("bid_price") > min(prices) and last_price.get("ask_price") < max(prices):
                 logging.info("orders is right 2, keep waiting %s" % self.sleep_seconds)
                 return
 
@@ -153,7 +132,7 @@ class GridStrategy():
             self.grid_exchange.cancel_orders(cancel_ids)
         # reinit
         self.placed_orders = []
-        self.replace_grid_orders(last_trade.get("price"))
+        self.replace_grid_orders()
         return
     
     def caculate_grid_step_ratio(self):

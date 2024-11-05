@@ -42,13 +42,12 @@ def _start_grid_loop(parser_args):
         exit(-1)
 
     market = parser_args.market
-    last_trade = grid_exchange.get_last_trade(market)
+    init_price = grid_exchange.get_last_trade(market)
 
-    if not last_trade:
-        logging.error("no last trade")
+    if not init_price: 
+        logging.error("no init price")
         exit(-1)
 
-    init_price = last_trade.get("price")
     grid_strategy = _init_grid_strategy(parser_args, grid_exchange, init_price)
 
     grid_strategy.open_initial_position()
@@ -56,16 +55,6 @@ def _start_grid_loop(parser_args):
     while True:
         grid_strategy.sleep_strategy(0.5)
         grid_strategy.caculate_grid_step_ratio()
-        
-        fills = grid_exchange.get_fills(market, limit=4)
-        if not fills:
-            # should not be here, since init with open/close orders
-            grid_strategy.check_wrong_orders()
-            continue
-        
-        if grid_strategy.on_fills_update(fills):
-            continue
-
         grid_strategy.check_wrong_orders()
         # grid_strategy.update_odoo_pnl()
         

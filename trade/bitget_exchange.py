@@ -65,9 +65,8 @@ class BitgetExchange(BaseExchange):
             price = None
         
         try:
-            order_response = self.client.place_order(market, side, price, size,
-                                                    type=order_type, reduce_only=False,
-                                                    ioc=ioc, post_only=post_only)
+            order_response = self.client.place_order(symbol=market, side=side, price=price, size=size,
+                                                    order_type=order_type)
         except Exception as e:
             logging.error("create order meet e: %s" % e)
             return None
@@ -96,8 +95,9 @@ class BitgetExchange(BaseExchange):
         return
 
     def get_last_trade(self, market):
-        future = self.client.get_market(market)
-        return {"price": float(future.get("last"))}
+        future = self.client.get_ticker(market)
+        future = future[0]
+        return {"ask_price": float(future.get("askPr")), "bid_price": float(future.get("bidPr"))}
 
     def get_fills(self, market, limit=4):
         fills = self.client.get_fills(market)
@@ -112,10 +112,9 @@ class BitgetExchange(BaseExchange):
         return fills[:limit]
 
     def get_open_orders(self, market):
-        orders = self.client.get_open_orders(market)
-        orders = list(filter(lambda x: x.get("status") == "open", orders))
+        orders = self.client.get_unfilled_orders(market)
         for order in orders:
-            order.update({"order_id": order.get("id")})
+            order.update({"order_id": order.get("orderId")})
         return orders
 
     def get_open_trigger_orders(self, market):
@@ -206,5 +205,5 @@ if __name__ == "__main__":
     _buy_price = exchange.convert_to_precision(_buy_price, _precision)
     _sell_price = exchange.convert_to_precision(_sell_price, _precision)
 
-    exchange.client.place_order(symbol=_spot, side="buy", orderType="limit", price=_buy_price, size=200)
-    exchange.client.place_order(symbol=_spot, side="sell", orderType="limit", price=_sell_price, size=200)
+    exchange.client.place_order(symbol=_spot, side="buy", order_type="limit", price=_buy_price, size=200)
+    exchange.client.place_order(symbol=_spot, side="sell", order_type="limit", price=_sell_price, size=200)

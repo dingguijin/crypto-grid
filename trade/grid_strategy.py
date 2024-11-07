@@ -7,10 +7,11 @@ from trade_side import TradeSide
 from trade_type import TradeType
 
 class GridStrategy():
-    def __init__(self, grid_exchange, market, size, open_price, grid_gap_ratio, strategy_id):
+    def __init__(self, grid_exchange, market, size, open_price, grid_gap_ratio, strategy_id, stop_price):
         self.market = market
         self.size = size
         
+        self.stop_price = stop_price
         self.grid_exchange = grid_exchange
         self.open_price = open_price
         self.grid_gap_ratio = grid_gap_ratio
@@ -92,10 +93,14 @@ class GridStrategy():
 
     def replace_grid_orders(self):
         self.sleep_seconds = 0
-        
+
         last_price = self.grid_exchange.get_last_trade(self.market)
         buy_price = self.get_next_buy_price(last_price)
         sell_price = self.get_next_sell_price(last_price)
+
+        if self.stop_price and sell_price > self.stop_price:
+            print("Sell price > stop_price", sell_price, self.stop_price)
+            return
 
         logging.info("get filled: %s buy: %s, sell: %s" % (last_price, buy_price, sell_price))
         # FIXME: if next price overflow the pricelist, dangerous!!!

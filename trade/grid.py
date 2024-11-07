@@ -32,7 +32,8 @@ def _init_grid_strategy(parser_args, grid_exchange, init_price):
     strategy_id = parser_args.strategy_id
     market = parser_args.market
     size = parser_args.size
-    return GridStrategy(grid_exchange, market, size, init_price, step_ratio, strategy_id)
+    stop_price = parser_args.stop_price
+    return GridStrategy(grid_exchange, market, size, init_price, step_ratio, strategy_id, stop_price)
 
 def _start_grid_loop(parser_args):
 
@@ -67,6 +68,7 @@ def _init_grid_arguments():
     parser.add_argument("--account_name", type=str, required=False)
     parser.add_argument("--subaccount_name", type=str, required=False)
     parser.add_argument("--strategy_id", type=int, required=False)
+    parser.add_argument("--stop_price", type=float, required=False)
     return parser.parse_args()
 
 if __name__ == "__main__":
